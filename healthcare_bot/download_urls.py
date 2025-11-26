@@ -15,7 +15,7 @@ from urllib.error import URLError, HTTPError
 
 
 class URLDownloader:
-    def __init__(self, json_file, output_dir="downloads", max_retries=3, timeout=10):
+    def __init__(self, json_file, output_dir="pdf_file_downloads", max_retries=3, timeout=10):
         self.json_file = json_file
         self.output_dir = Path(output_dir)
         self.max_retries = max_retries
