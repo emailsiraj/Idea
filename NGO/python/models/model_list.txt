@@ -1,0 +1,2 @@
+aadhar_classifier.pt -> Aadhar Classifier (Finetuned YOLOv8 Nano on Aadhar Images Dataset)
+model.pt -> YOLOv8 model finetuned to identify Name, DOB, Gender and Aadhar number in an Aadhar Card image
