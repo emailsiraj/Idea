@@ -17,7 +17,7 @@ st.title("AADHAR Upload and Verification")
 # If Aadhaar was already verified before and user navigates back → DO NOT RESET
 if st.session_state.verified_aadhar:
     st.success("✔ Aadhaar already verified earlier")
-    st.page_link("pages/1_Face_Verification.py", label="➡ Continue", icon="▶")
+    st.page_link("pages/1_Face_Verification.py", label="Continue", icon="▶")
 else:
     st.write("Upload an image to validate if it is an Aadhaar card.")
     uploaded = st.file_uploader("Upload Aadhaar Card Image", type=["jpg", "jpeg", "png"])
@@ -34,11 +34,11 @@ else:
 
         if class_name.lower() == "aadhar":
             st.session_state.verified_aadhar = True  # Persist!
-            st.success(f"✔ Aadhaar detected ({conf:.2f})")
+            st.success(f"Aadhaar detected ({conf:.2f})")
             
             # Continue button becomes ACTIVE only now
-            st.page_link("pages/1_Face_Verification.py", label="➡ Continue", icon="▶")
+            st.page_link("pages/1_Face_Verification.py", label="Continue", icon="▶")
 
         else:
-            st.error("❌ This is NOT an Aadhaar card.")
+            st.error(" This is not an Aadhaar card. Please upload the picture of a valid Aadhar card.")
             st.button("Continue", disabled=True)
