@@ -29,25 +29,25 @@ def is_color_image(image, threshold=10):
     return color_score > threshold
 
 # Function to detect less saturated images
-def has_enough_saturation(image, sat_threshold=25):
-    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-    saturation = hsv[:, :, 1]
-    mean_sat = np.mean(saturation)
+# def has_enough_saturation(image, sat_threshold=25):
+#     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+#     saturation = hsv[:, :, 1]
+#     mean_sat = np.mean(saturation)
 
-    return mean_sat > sat_threshold
+#     return mean_sat > sat_threshold
 
 #Function to detect negative images
-def is_negative_image(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
+# def is_negative_image(image):
+#     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 
-    mean_intensity = np.mean(gray)
-    std_intensity = np.std(gray)
+#     mean_intensity = np.mean(gray)
+#     std_intensity = np.std(gray)
 
-    # Negative images usually have high brightness but abnormal contrast
-    if mean_intensity > 170 and std_intensity < 60:
-        return True
+#     # Negative images usually have high brightness but abnormal contrast
+#     if mean_intensity > 170 and std_intensity < 60:
+#         return True
 
-    return False
+#     return False
 
 # Function for validating images
 def validate_selfie_face(image):
@@ -58,11 +58,11 @@ def validate_selfie_face(image):
     if not is_color_image(image):
         return False, "Uploaded image is not a color image", None
     
-    if not has_enough_saturation(image):
-        return False, "Image has very low color information", None
+    # if not has_enough_saturation(image):
+    #     return False, "Image has very low color information", None
     
-    if is_negative_image(image):
-        return False, "Uploaded image is not a color image", None
+    # if is_negative_image(image):
+    #     return False, "Uploaded image is not a color image", None
 
     rgb = image
     # cv2.imwrite("uploaded_img.jpg",rgb)
@@ -89,10 +89,10 @@ def validate_selfie_face(image):
     face_area = face_w * face_h
 
     # 2. Face size check (ONLY FACE condition)
-    face_ratio = face_area / img_area
-    print(f"(Face / Image) area ratio: {face_ratio}")
-    if face_ratio < 0.15:   # VERY important threshold
-        return False, "Face too small / background too dominant", None
+    # face_ratio = face_area / img_area
+    # print(f"(Face / Image) area ratio: {face_ratio}")
+    # if face_ratio < 0.05:   # VERY important threshold
+    #     return False, "Face too small / background too dominant", None
 
     # 3. Centered face check
     face_cx = (min_x + max_x) / 2
@@ -185,7 +185,8 @@ else:
                 st.error(message)
             else:
                 st.session_state.verified_face = True
-                st.success("Photo uploaded successfully.")
+                st.success("Photo uploaded successfully. Proceed to the next stage.")
+                st.page_link("pages/2_MSET_Application_Verification.py", label="Continue", icon="▶")
                 
         except Exception as e:
             st.error(" Something went wrong processing the image.")
