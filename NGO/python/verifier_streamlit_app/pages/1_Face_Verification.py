@@ -50,7 +50,7 @@ def is_color_image(image, threshold=10):
 #     return False
 
 # Function for validating images
-def validate_selfie_face(image):
+def validate_picture(image):
     print(f"Image shape: {image.shape}")
     h, w, _ = image.shape
     img_area = h * w
@@ -162,7 +162,7 @@ else:
         img = np.array(Image.open(uploaded_face).convert("RGB"))
         
         try:
-            is_valid, message, bbox = validate_selfie_face(img)
+            is_valid, message, bbox = validate_picture(img)
             
             col1, col2 = st.columns(2)
 
@@ -185,8 +185,17 @@ else:
                 st.error(message)
             else:
                 st.session_state.verified_face = True
+                
+                photo_json = {
+                    "Photograph": {
+                        "Verified": True
+                    }
+                }
+                
+                st.session_state.info_json = {**st.session_state.info_json, **photo_json}
+            
                 st.success("Photo uploaded successfully. Proceed to the next stage.")
-                st.page_link("pages/2_MSET_Application_Verification.py", label="Continue", icon="▶")
+                st.page_link("pages/2_Income_Certificate_Verification.py", label="Continue", icon="▶")
                 
         except Exception as e:
             st.error(" Something went wrong processing the image.")
