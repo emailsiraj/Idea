@@ -79,8 +79,21 @@ def field_validation(name, aadhar_num, dob, gender):
         gender = None
     validated_info['Gender'] = gender
     
+    return validated_info
+    
+def create_aadhar_json(name, aadhar_num, dob, gender):
+    return {
+        "Aadhar" : {
+            "Verified": True,
+            "Name": name,
+            "Gender": gender,
+            "Date of Birth": dob,
+            "Aadhar Number":aadhar_num
+        }
+    }
+
 def reset_state():
-    st.session.verified_aadhar = False
+    st.session_state.verified_aadhar = False
 
 st.set_page_config(page_title="Aadhaar Verification", page_icon="🪪")
 
@@ -117,7 +130,7 @@ else:
         class_name = st.session_state.detection_model.names[cls_id]
 
         if class_name.lower() == "aadhar":
-            st.session_state.verified_aadhar = True  # Persist!
+            st.session_state.verified_aadhar = True 
             st.success(f"Aadhaar detected with Confidence: ({conf:.2f})")
             
             with st.spinner("Reading Aadhar Content..."):
@@ -125,15 +138,20 @@ else:
                 extracted_info = extract_aadhar_content(image)
                 
             st.success("Details extracted successfully")
-            # Get values
+            
             name = extracted_info.get('NAME',None)
             aadhar_number = extracted_info.get('AADHAR_NUMBER',None)
             gender = extracted_info.get('GENDER', None)
             dob = extracted_info.get('DATE_OF_BIRTH', None)
             
-            st.write(f"Name: {name}\nAadhar: {aadhar_number}\ngender: {gender}\nDOB: {dob}")
+            aadhar_json = create_aadhar_json(name, aadhar_number, gender, dob)
+            st.session_state.info_json = aadhar_json
             
-            # Continue button becomes ACTIVE only now
+            st.write(f"Name: {name}")
+            st.write(f"Aadhar: {aadhar_number}")
+            st.write(f"Gender: {gender}")
+            st.write(f"DOB: {dob}")
+            
             st.page_link("pages/1_Face_Verification.py", label="Continue", icon="▶")
 
         else:
