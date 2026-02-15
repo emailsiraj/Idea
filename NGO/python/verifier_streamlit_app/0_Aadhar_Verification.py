@@ -141,7 +141,7 @@ else:
             gender = extracted_info.get('GENDER', None)
             dob = extracted_info.get('DATE_OF_BIRTH', None)
             
-            aadhar_json = create_aadhar_json(name, aadhar_number, gender, dob)
+            aadhar_json = create_aadhar_json(name, aadhar_number, dob, gender)
             
             st.write(aadhar_json)
             
