@@ -3,14 +3,35 @@ import cv2
 import pytesseract
 import numpy as np
 import json
+import os
 
+from huggingface_hub import hf_hub_download
 from supervision import Detections
 from ultralytics import YOLO
 from PIL import Image
 from utils.ocr_utils import *
 from utils.s3_utils import *
 
-pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+# pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesseract.exe'
+def download_models():
+    os.makedirs("models", exist_ok=True)
+
+    model_path = hf_hub_download(
+        repo_id="Chaitanya1729/mset-models",
+        filename="model.pt",
+        local_dir="models",
+        token=os.getenv('HF_TOKEN')
+    )
+
+    classifier_path = hf_hub_download(
+        repo_id="Chaitanya1729/mset-models",
+        filename="aadhar_classifier.pt",
+        local_dir="models",
+        token=os.getenv('HF_TOKEN')
+    )
+
+    return model_path, classifier_path
+
 
 def extract_aadhar_content(aadhar_image):
     extracted_info = dict()
@@ -46,29 +67,34 @@ def create_aadhar_json(name, aadhar_num, dob, gender):
     }
 
 def reset_state():
-    st.session_state.verified_aadhar = False
+    st.session_state.status['verified_aadhar'] = False
+
+model_path, classifier_path = download_models()
 
 st.set_page_config(page_title="Aadhaar Verification", page_icon="🪪")
 
 # Load model only once for performance
 if "detection_model" not in st.session_state:
-    st.session_state.detection_model = YOLO("models/aadhar_classifier.pt")
+    st.session_state.detection_model = YOLO(classifier_path)
     
 if "extraction_model" not in st.session_state:
-    st.session_state.extraction_model = YOLO("models/model.pt")
+    st.session_state.extraction_model = YOLO(model_path)
     
 # Persist state
-st.session_state.status = {
-    'verified_aadhar': False,
-    'verified_face': False,
-    'verified_income': False,
-    'verified_rec': False,
-    'verified_marksheet': False,
-    'verified_mset': False
-}
+if 'status' not in st.session_state:
+    st.session_state.status = {
+        'verified_aadhar': False,
+        'verified_face': False,
+        'verified_income': False,
+        'verified_rec': False,
+        'verified_marksheet': False,
+        'verified_mset': False
+    }
 
 # if "verified_aadhar" not in st.session_state:
 #     st.session_state.verified_aadhar = False
+if 'clicked_verify' not in st.session_state:
+    st.session_state.clicked_verify = False
 
 st.title("Aadhar Upload and Verification")
 
@@ -78,6 +104,7 @@ aadhar = st.text_input(
 )
 
 if st.button("Verify Aadhaar"):
+    st.session_state.clicked_verify = True
     if not aadhar.isdigit() or len(aadhar) != 12:
         st.error("Please enter a valid 12-digit Aadhaar number.")
     else:
@@ -95,7 +122,7 @@ if st.button("Verify Aadhaar"):
                 st.session_state.status['verified_rec'] = True
             if 'Marksheet' in details_json and details_json['Marksheet']['Verified']:
                 st.session_state.status['verified_marksheet'] = True
-            if 'MSET Application' in details_json and details_json['MSET_Application']['Verified']:
+            if 'MSET Application' in details_json and details_json['MSET Application']['Verified']:
                 st.session_state.status['verified_mset'] = True
         else:
             st.session_state.folder_name = aadhar
@@ -103,17 +130,17 @@ if st.button("Verify Aadhaar"):
             info_json = {
                 'Aadhar':
                     {
-                        'Verified': 'False'
+                        'Verified': False
                     }
             }
             upload_json(f'{st.session_state.folder_name}/details.json',info_json)
 
 # If Aadhaar was already verified before and user navigates back → DO NOT RESET
-if st.session_state.status['verified_aadhar']:
+if st.session_state.clicked_verify and st.session_state.status['verified_aadhar']:
     st.success("Aadhar already verified earlier")
     st.page_link("pages/1_Face_Verification.py", label="Continue", icon="▶")
     st.button("Reupload Aadhar Image", on_click=reset_state)
-else:
+elif st.session_state.clicked_verify and not st.session_state.status['verified_aadhar']:
     st.write("Upload the Aadhar card image here.")
     uploaded = st.file_uploader("Upload", type=["jpg", "jpeg", "png"])
 
