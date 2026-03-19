@@ -8,7 +8,7 @@ from utils.img_utils import *
 from utils.ocr_utils import *
 from utils.s3_utils import *
 
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 def is_field_filled(field_img):
     gray = cv2.cvtColor(field_img, cv2.COLOR_BGR2GRAY)
